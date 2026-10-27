@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HERITAGE ARCHIVE — Bespoke Digital Publication Reader</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#0B0C0E',
+                        'obsidian-light': '#14161B',
+                        champagne: '#D4AF37',
+                        'champagne-light': '#F3E5AB',
+                        'champagne-dark': '#A38127',
+                        vellum: '#FBF9F5',
+                        slate: '#1E2024',
+                        bronze: '#8C7853',
+                        emerald: '#051E17',
+                        'emerald-dark': '#020D0A',
+                        sepia: '#1A140E',
+                        'sepia-light': '#2A2018'
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        garamond: ['Cormorant Garamond', 'serif'],
+                        montserrat: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Strict High-End Luxury Sharp Edges Rule */
+        * {
+            border-radius: 0px !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(11, 12, 14, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8C7853;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+
+        /* Gold Hairline Borders */
+        .hairline-gold {
+            border: 1px solid rgba(212, 175, 55, 0.25);
+        }
+        .hairline-gold-thick {
+            border: 1px solid rgba(212, 175, 55, 0.6);
+        }
+        .hairline-white {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* Shimmer Underline Hover */
+        .gold-shimmer-link {
+            position: relative;
+            display: inline-block;
+        }
+        .gold-shimmer-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: #D4AF37;
+            transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .gold-shimmer-link:hover::after {
+            width: 100%;
+        }
+
+        /* Glassmorphism Luxury Panel */
+        .glass-panel-dark {
+            background: rgba(11, 12, 14, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .glass-panel-light {
+            background: rgba(251, 249, 245, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Reading Themes */
+        .theme-obsidian {
+            background-color: #0B0C0E;
+            color: #E2E8F0;
+        }
+        .theme-alabaster {
+            background-color: #F5F3EF;
+            color: #1A1A1A;
+        }
+        .theme-alabaster .glass-panel-dark {
+            background: rgba(245, 243, 239, 0.92);
+            color: #1A1A1A;
+            border-color: rgba(140, 120, 83, 0.3);
+        }
+        .theme-sepia {
+            background-color: #140E0A;
+            color: #E8D8C8;
+        }
+        .theme-emerald {
+            background-color: #03120E;
+            color: #D1E5DE;
+        }
+
+        /* Loupe Lens Magnifier */
+        #loupe-lens {
+            position: fixed;
+            width: 180px;
+            height: 180px;
+            border: 2px solid #D4AF37;
+            box-shadow: 0 0 25px rgba(0,0,0,0.8), inset 0 0 15px rgba(212,175,55,0.3);
+            pointer-events: none;
+            display: none;
+            z-index: 9999;
+            background-repeat: no-repeat;
+            overflow: hidden;
+            background-color: #000;
+        }
+        #loupe-lens::after {
+            content: "INSPECTION LOUPE 3.0x";
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 8px;
+            letter-spacing: 2px;
+            color: #D4AF37;
+            background: rgba(0,0,0,0.7);
+            padding: 2px 0;
+        }
+
+        /* Book Page Shadow Simulation */
+        .page-shadow-left {
+            box-shadow: 15px 0 25px -5px rgba(0, 0, 0, 0.6), 1px 0 0 rgba(0, 0, 0, 0.2);
+        }
+        .page-shadow-right {
+            box-shadow: -15px 0 25px -5px rgba(0, 0, 0, 0.6), -1px 0 0 rgba(0, 0, 0, 0.2);
+        }
+        .book-spine-shadow {
+            background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.05) 15%, rgba(0,0,0,0.05) 85%, rgba(0,0,0,0.4) 100%);
+        }
+
+        /* Loading Shimmer Animation */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .skeleton-loader {
+            background: linear-gradient(90deg, #14161B 25%, #1E2024 50%, #14161B 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Fade Animations */
+        .fade-enter {
+            opacity: 0;
+            transform: scale(0.98);
+        }
+        .fade-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="h-full font-montserrat theme-obsidian select-none overflow-hidden transition-colors duration-500">
+
+    <!-- LOUPE LENS ELEMENT -->
+    <div id="loupe-lens"></div>
+
+    <!-- MAIN SUITE CONTAINER -->
+    <div class="h-full flex flex-col justify-between relative overflow-hidden">
+
+        <!-- TOP BAR / HEADER ARCHITECTURE -->
+        <header class="h-16 border-b hairline-gold glass-panel-dark px-6 flex items-center justify-between z-40 relative">
+            <!-- Left Branding & Metadata -->
+            <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="toggleAboutModal()">
+                    <div class="w-7 h-7 border hairline-gold flex items-center justify-center bg-obsidian text-champagne text-xs font-cinzel font-bold">
+                        H
+                    </div>
+                    <div>
+                        <h1 class="font-cinzel text-xs font-semibold tracking-[0.25em] text-champagne uppercase">HERITAGE ARCHIVE</h1>
+                        <p class="text-[9px] font-montserrat tracking-[0.2em] text-stone-400 uppercase">COLLECTION N° 2652 • VOL. II</p>
+                    </div>
+                </div>
+                <div class="hidden md:block h-6 w-[1px] bg-stone-800"></div>
+                <div class="hidden md:flex items-center space-x-2 text-[10px] text-stone-400 tracking-wider">
+                    <span class="text-champagne font-cinzel">MANUSCRIPT:</span>
+                    <span>ACADEMIC CURATION 2026</span>
+                </div>
+            </div>
+
+            <!-- Middle Quick Status -->
+            <div class="hidden lg:flex items-center space-x-4 text-[11px] tracking-widest text-stone-300 font-cinzel">
+                <span id="header-page-indicator">PAGE 1 OF 28</span>
+                <span class="text-stone-600">•</span>
+                <span id="header-spread-mode" class="text-stone-400 uppercase">DUAL SPREAD VIEW</span>
+            </div>
+
+            <!-- Right Controls Utility Suite -->
+            <div class="flex items-center space-x-3">
+                <!-- Ambient Audio Sound Generator -->
+                <button id="audio-toggle-btn" onclick="toggleAmbientAudio()" title="Atmospheric Library Audio" class="w-9 h-9 flex items-center justify-center border hairline-white text-stone-400 hover:text-champagne hover:border-champagne transition">
+                    <i class="fa-solid fa-headphones text-xs"></i>
+                </button>
+
+                <!-- Magnification Inspection Loupe -->
+                <button id="loupe-toggle-btn" onclick="toggleLoupe()" title="Inspection Loupe (Hover Zoom)" class="w-9 h-9 flex items-center justify-center border hairline-white text-stone-400 hover:text-champagne hover:border-champagne transition">
+                    <i class="fa-solid fa-[#loupe-lens] fa-magnifying-glass text-xs"></i>
+                </button>
+
+                <!-- Fullscreen Toggle -->
+                <button onclick="toggleFullscreen()" title="Full Screen View" class="w-9 h-9 flex items-center justify-center border hairline-white text-stone-400 hover:text-champagne hover:border-champagne transition">
+                    <i id="fullscreen-icon" class="fa-solid fa-expand text-xs"></i>
+                </button>
+
+                <!-- Vault Side Drawer Toggle -->
+                <button onclick="toggleVaultDrawer()" class="px-3 h-9 flex items-center space-x-2 border hairline-gold text-champagne bg-obsidian hover:bg-champagne hover:text-obsidian transition text-[10px] font-cinzel tracking-widest font-semibold">
+                    <i class="fa-solid fa-layer-group text-xs"></i>
+                    <span class="hidden sm:inline">VAULT DRAWER</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- CANVAS MAIN AREA -->
+        <main id="canvas-wrapper" class="flex-1 relative flex items-center justify-center overflow-hidden p-4 sm:p-8">
+            
+            <!-- Dynamic Background Radial Ambient Glow -->
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-stone-900/30 via-obsidian/80 to-obsidian pointer-events-none"></div>
+
+            <!-- BOOK CANVAS STAGE -->
+            <div id="book-stage" class="relative transition-all duration-300 flex items-center justify-center max-w-full max-h-full">
+                
+                <!-- DUAL PAGE / SINGLE PAGE CONTAINER -->
+                <div id="pages-container" class="flex items-center justify-center relative shadow-2xl transition-all duration-500 transform-gpu">
+                    
+                    <!-- LEFT PAGE -->
+                    <div id="left-page-box" class="relative overflow-hidden border-t border-b border-l hairline-gold bg-stone-950 flex justify-end items-center transition-all duration-300">
+                        <div id="left-skeleton" class="absolute inset-0 skeleton-loader"></div>
+                        <img id="left-page-img" class="max-h-[78vh] w-auto object-contain opacity-0 transition-opacity duration-500 page-shadow-left" alt="Left Page" />
+                        <!-- Bookmark Indicator -->
+                        <div id="left-bookmark-ribbon" class="hidden absolute top-0 left-6 w-6 h-10 bg-champagne text-obsidian flex items-end justify-center pb-1 shadow-md z-20">
+                            <i class="fa-solid fa-bookmark text-xs"></i>
+                        </div>
+                        <span id="left-page-number" class="absolute bottom-2 left-4 text-[9px] font-cinzel tracking-widest text-stone-500">1</span>
+                    </div>
+
+                    <!-- SPINE CENTER SEAM (Dual Mode Only) -->
+                    <div id="spine-seam" class="w-4 h-[78vh] book-spine-shadow z-20 pointer-events-none border-t border-b hairline-gold"></div>
+
+                    <!-- RIGHT PAGE -->
+                    <div id="right-page-box" class="relative overflow-hidden border-t border-b border-r hairline-gold bg-stone-950 flex justify-start items-center transition-all duration-300">
+                        <div id="right-skeleton" class="absolute inset-0 skeleton-loader"></div>
+                        <img id="right-page-img" class="max-h-[78vh] w-auto object-contain opacity-0 transition-opacity duration-500 page-shadow-right" alt="Right Page" />
+                        <!-- Bookmark Indicator -->
+                        <div id="right-bookmark-ribbon" class="hidden absolute top-0 right-6 w-6 h-10 bg-champagne text-obsidian flex items-end justify-center pb-1 shadow-md z-20">
+                            <i class="fa-solid fa-bookmark text-xs"></i>
+                        </div>
+                        <span id="right-page-number" class="absolute bottom-2 right-4 text-[9px] font-cinzel tracking-widest text-stone-500">2</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- NAVIGATION FLANK ARROWS -->
+            <button onclick="prevPage()" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-20 border hairline-gold glass-panel-dark text-stone-400 hover:text-champagne hover:border-champagne flex items-center justify-center transition group z-30">
+                <i class="fa-solid fa-chevron-left text-sm group-hover:-translate-x-1 transition-transform"></i>
+            </button>
+
+            <button onclick="nextPage()" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-20 border hairline-gold glass-panel-dark text-stone-400 hover:text-champagne hover:border-champagne flex items-center justify-center transition group z-30">
+                <i class="fa-solid fa-chevron-right text-sm group-hover:translate-x-1 transition-transform"></i>
+            </button>
+
+        </main>
+
+        <!-- BOTTOM CONTROL BAR SUITE -->
+        <footer class="h-20 border-t hairline-gold glass-panel-dark px-6 flex items-center justify-between z-40 relative">
+            
+            <!-- Left Controls: Layout & View Controls -->
+            <div class="flex items-center space-x-4">
+                <!-- Dual / Single Toggle -->
+                <button id="view-mode-btn" onclick="toggleSpreadMode()" class="px-3 py-2 border hairline-white text-stone-300 hover:text-champagne hover:border-champagne transition text-[10px] font-cinzel tracking-widest flex items-center space-x-2">
+                    <i class="fa-solid fa-book-open text-xs"></i>
+                    <span id="view-mode-text" class="hidden sm:inline">SINGLE PAGE FOCUS</span>
+                </button>
+
+                <!-- Zoom Level Slider & Controls -->
+                <div class="hidden md:flex items-center space-x-2 border hairline-white px-3 py-1.5 text-stone-300">
+                    <button onclick="adjustZoom(-0.1)" class="hover:text-champagne"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                    <span id="zoom-percentage" class="text-[10px] font-cinzel tracking-widest w-12 text-center">100%</span>
+                    <button onclick="adjustZoom(0.1)" class="hover:text-champagne"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                    <button onclick="resetZoom()" class="ml-2 text-[9px] text-stone-500 hover:text-stone-300 uppercase tracking-wider">RESET</button>
+                </div>
+            </div>
+
+            <!-- Middle Navigation Timeline Slider -->
+            <div class="flex-1 max-w-md mx-6 flex items-center space-x-3">
+                <span class="text-[10px] font-cinzel text-stone-400">01</span>
+                <input id="page-slider" type="range" min="1" max="28" value="1" oninput="onSliderChange(this.value)" class="w-full accent-[#D4AF37] h-1 bg-stone-800 cursor-pointer" />
+                <span class="text-[10px] font-cinzel text-stone-400">28</span>
+            </div>
+
+            <!-- Right Controls: Curation & Atmospheric Suite -->
+            <div class="flex items-center space-x-3">
+                <!-- Bookmark Page Toggle -->
+                <button id="bookmark-btn" onclick="toggleCurrentBookmark()" class="w-9 h-9 border hairline-white text-stone-400 hover:text-champagne hover:border-champagne transition flex items-center justify-center" title="Toggle Gold Foil Bookmark">
+                    <i class="fa-regular fa-bookmark text-xs"></i>
+                </button>
+
+                <!-- Curator Notes Drawer Toggle -->
+                <button onclick="toggleNotesDrawer()" class="w-9 h-9 border hairline-white text-stone-400 hover:text-champagne hover:border-champagne transition flex items-center justify-center relative" title="Curator Notes">
+                    <i class="fa-solid fa-pen-nib text-xs"></i>
+                    <div id="notes-badge" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-champagne"></div>
+                </button>
+
+                <!-- Atmosphere / Lighting Theme Selector Toggle -->
+                <button onclick="toggleThemeModal()" class="w-9 h-9 border hairline-white text-stone-400 hover:text-champagne hover:border-champagne transition flex items-center justify-center" title="Atmospheric Lighting Suite">
+                    <i class="fa-solid fa-circle-half-stroke text-xs"></i>
+                </button>
+
+                <!-- Slideshow / Auto-Advance Toggle -->
+                <button id="slideshow-btn" onclick="toggleSlideshow()" class="w-9 h-9 border hairline-white text-stone-400 hover:text-champagne hover:border-champagne transition flex items-center justify-center" title="Collector Presentation Mode">
+                    <i class="fa-solid fa-play text-xs"></i>
+                </button>
+
+                <!-- Export / Print -->
+                <button onclick="openExportModal()" class="w-9 h-9 border hairline-white text-stone-400 hover:text-champagne hover:border-champagne transition flex items-center justify-center" title="Collector Print & Export">
+                    <i class="fa-solid fa-print text-xs"></i>
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- SIDE DRAWER: THUMBNAILS VAULT -->
+    <div id="vault-drawer" class="fixed inset-y-0 right-0 w-80 sm:w-96 glass-panel-dark border-l hairline-gold z-50 transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col">
+        <!-- Drawer Header -->
+        <div class="h-16 px-6 border-b hairline-gold flex items-center justify-between">
+            <div>
+                <h2 class="font-cinzel text-xs font-bold tracking-[0.2em] text-champagne uppercase">THUMBNAIL VAULT</h2>
+                <p class="text-[9px] text-stone-400 tracking-wider">INDEX & MANUSCRIPT MAP</p>
+            </div>
+            <button onclick="toggleVaultDrawer()" class="text-stone-400 hover:text-champagne"><i class="fa-solid fa-xmark text-sm"></i></button>
+        </div>
+
+        <!-- Vault Filter Bar -->
+        <div class="px-6 py-3 border-b hairline-white flex space-x-2 text-[9px] font-cinzel tracking-widest">
+            <button onclick="filterVault('all')" id="filter-all" class="px-2 py-1 border hairline-gold bg-champagne text-obsidian font-bold">ALL (28)</button>
+            <button onclick="filterVault('bookmarked')" id="filter-bookmarked" class="px-2 py-1 border hairline-white text-stone-400 hover:text-champagne">BOOKMARKED</button>
+            <button onclick="filterVault('annotated')" id="filter-annotated" class="px-2 py-1 border hairline-white text-stone-400 hover:text-champagne">NOTES</button>
+        </div>
+
+        <!-- Thumbnails Grid Scrollable Area -->
+        <div id="vault-grid" class="flex-1 overflow-y-auto p-6 grid grid-cols-2 gap-4">
+            <!-- Dynamic Micro-cards Generated by JS -->
+        </div>
+    </div>
+
+    <!-- SIDE DRAWER: CURATOR NOTES -->
+    <div id="notes-drawer" class="fixed inset-y-0 right-0 w-80 sm:w-96 glass-panel-dark border-l hairline-gold z-50 transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col">
+        <!-- Header -->
+        <div class="h-16 px-6 border-b hairline-gold flex items-center justify-between">
+            <div>
+                <h2 class="font-cinzel text-xs font-bold tracking-[0.2em] text-champagne uppercase">CURATOR NOTES</h2>
+                <p id="notes-page-title" class="text-[9px] text-stone-400 tracking-wider">PAGE 1 ANNOTATIONS</p>
+            </div>
+            <button onclick="toggleNotesDrawer()" class="text-stone-400 hover:text-champagne"><i class="fa-solid fa-xmark text-sm"></i></button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-1 p-6 flex flex-col space-y-4">
+            <label class="text-[10px] font-cinzel text-stone-400 tracking-widest">PRIVATE ANNOTATION & RESEARCH LOG:</label>
+            <textarea id="curator-textarea" oninput="saveCuratorNote()" class="flex-1 bg-obsidian border hairline-gold p-4 text-xs font-garamond text-stone-200 focus:outline-none focus:border-champagne resize-none leading-relaxed" placeholder="Record archival observations, fine detail evaluations, or collector tags for this manuscript page..."></textarea>
+            
+            <div class="text-[9px] text-stone-500 font-montserrat flex items-center justify-between">
+                <span>STATUS: <span id="save-status" class="text-champagne">AUTOSAVED</span></span>
+                <span>PERSISTENT STORAGE</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: LIGHTING ATMOSPHERE SUITE -->
+    <div id="theme-modal" class="fixed inset-0 bg-obsidian/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-md glass-panel-dark border hairline-gold p-6 space-y-6">
+            <div class="flex justify-between items-center border-b hairline-gold pb-4">
+                <div>
+                    <h3 class="font-cinzel text-xs font-bold tracking-[0.25em] text-champagne uppercase">LIGHTING ATMOSPHERES</h3>
+                    <p class="text-[9px] text-stone-400">SELECT bespoke VISUAL READING ENVIRONMENT</p>
+                </div>
+                <button onclick="toggleThemeModal()" class="text-stone-400 hover:text-champagne"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Obsidian Vault -->
+                <button onclick="setTheme('obsidian')" class="p-4 border hairline-gold bg-obsidian text-left hover:border-champagne transition group">
+                    <div class="w-full h-8 bg-obsidian border border-stone-800 mb-2 flex items-center justify-center">
+                        <span class="w-3 h-3 bg-champagne"></span>
+                    </div>
+                    <div class="font-cinzel text-[10px] font-bold text-champagne group-hover:underline">OBSIDIAN VAULT</div>
+                    <div class="text-[8px] text-stone-500">Dark luxury velvet theme</div>
+                </button>
+
+                <!-- Alabaster Gallery -->
+                <button onclick="setTheme('alabaster')" class="p-4 border hairline-gold bg-[#F5F3EF] text-left hover:border-champagne transition group">
+                    <div class="w-full h-8 bg-[#F5F3EF] border border-stone-300 mb-2 flex items-center justify-center">
+                        <span class="w-3 h-3 bg-stone-900"></span>
+                    </div>
+                    <div class="font-cinzel text-[10px] font-bold text-stone-900 group-hover:underline">ALABASTER GALLERY</div>
+                    <div class="text-[8px] text-stone-600">Pristine high-fashion white</div>
+                </button>
+
+                <!-- Royal Sepia -->
+                <button onclick="setTheme('sepia')" class="p-4 border hairline-gold bg-[#140E0A] text-left hover:border-champagne transition group">
+                    <div class="w-full h-8 bg-[#140E0A] border border-amber-900/40 mb-2 flex items-center justify-center">
+                        <span class="w-3 h-3 bg-amber-600"></span>
+                    </div>
+                    <div class="font-cinzel text-[10px] font-bold text-amber-500 group-hover:underline">ROYAL SEPIA</div>
+                    <div class="text-[8px] text-stone-500">Aged parchment & bronze</div>
+                </button>
+
+                <!-- Midnight Emerald -->
+                <button onclick="setTheme('emerald')" class="p-4 border hairline-gold bg-[#03120E] text-left hover:border-champagne transition group">
+                    <div class="w-full h-8 bg-[#03120E] border border-emerald-900/40 mb-2 flex items-center justify-center">
+                        <span class="w-3 h-3 bg-emerald-400"></span>
+                    </div>
+                    <div class="font-cinzel text-[10px] font-bold text-emerald-400 group-hover:underline">MIDNIGHT EMERALD</div>
+                    <div class="text-[8px] text-stone-500">Deep green velvet & gold</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PRINT & COLLECTOR EXPORT -->
+    <div id="export-modal" class="fixed inset-0 bg-obsidian/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-md glass-panel-dark border hairline-gold p-6 space-y-6">
+            <div class="flex justify-between items-center border-b hairline-gold pb-4">
+                <div>
+                    <h3 class="font-cinzel text-xs font-bold tracking-[0.25em] text-champagne uppercase">COLLECTOR EXPORT</h3>
+                    <p class="text-[9px] text-stone-400">HIGH-RESOLUTION MANUSCRIPT PRINT</p>
+                </div>
+                <button onclick="closeExportModal()" class="text-stone-400 hover:text-champagne"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-4 text-xs font-garamond text-stone-300">
+                <p>Prepare standard high-resolution print output for the current page spread or full manuscript documentation.</p>
+                
+                <div class="space-y-2">
+                    <button onclick="triggerPrint('current')" class="w-full py-3 border hairline-gold bg-obsidian text-champagne font-cinzel text-[10px] tracking-widest hover:bg-champagne hover:text-obsidian transition">
+                        PRINT CURRENT SPREAD (PAGE <span id="export-page-num">1</span>)
+                    </button>
+                    <button onclick="triggerPrint('all')" class="w-full py-3 border hairline-white bg-transparent text-stone-300 font-cinzel text-[10px] tracking-widest hover:border-champagne hover:text-champagne transition">
+                        PRINT COMPLETE MANUSCRIPT (28 PAGES)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ABOUT / MANUSCRIPT METADATA -->
+    <div id="about-modal" class="fixed inset-0 bg-obsidian/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-lg glass-panel-dark border hairline-gold p-8 space-y-6">
+            <div class="flex justify-between items-center border-b hairline-gold pb-4">
+                <div>
+                    <h3 class="font-cinzel text-sm font-bold tracking-[0.25em] text-champagne uppercase">HERITAGE ARCHIVE ARCHITECTURE</h3>
+                    <p class="text-[9px] text-stone-400">CURATORIAL PUBLICATION READER VOL. II</p>
+                </div>
+                <button onclick="toggleAboutModal()" class="text-stone-400 hover:text-champagne"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-4 text-xs font-garamond leading-relaxed text-stone-300">
+                <p class="first-letter:text-3xl first-letter:font-cinzel first-letter:text-champagne first-letter:mr-2 first-letter:float-left">
+                    Engineered for high-end digital publication viewing, Heritage Archive replicates the experience of inspecting museum-grade prints, horology catalogs, and architectural digests.
+                </p>
+                <div class="border-t border-b hairline-white py-4 grid grid-cols-2 gap-4 text-[10px] font-cinzel text-stone-400">
+                    <div>
+                        <span class="block text-champagne">MANUSCRIPT CODE:</span>
+                        <span>DEV-ACMS-2652</span>
+                    </div>
+                    <div>
+                        <span class="block text-champagne">RESOLUTION MATRIX:</span>
+                        <span>HIGH-DEFINITION VECTOR</span>
+                    </div>
+                    <div>
+                        <span class="block text-champagne">TOTAL PAGES:</span>
+                        <span>28 ARCHIVAL PLATES</span>
+                    </div>
+                    <div>
+                        <span class="block text-champagne">RENDER SUITE:</span>
+                        <span>CANVAS LOUPE v3.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // CONFIGURATION STATE
+        const TOTAL_PAGES = 28;
+        const BASE_URL = 'https://acad-cdn.letseduvate.com/dev/media/acms/ebooks/2652/pages/page_';
+        
+        let currentPage = 1; // 1-indexed (Left page in dual mode)
+        let isDualSpread = true;
+        let zoomLevel = 1.0;
+        let loupeActive = false;
+        let audioActive = false;
+        let slideshowActive = false;
+        let slideshowInterval = null;
+        let currentFilter = 'all';
+
+        // STORAGE KEYS
+        const BOOKMARKS_KEY = 'heritage_archive_bookmarks';
+        const NOTES_KEY = 'heritage_archive_notes';
+
+        let bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || '[]');
+        let notes = JSON.parse(localStorage.getItem(NOTES_KEY) || '{}');
+
+        // AUDIO SYNTHESIZER (Web Audio API)
+        let audioCtx = null;
+        let noiseNode = null;
+        let gainNode = null;
+
+        // DOM ELEMENTS
+        const leftPageBox = document.getElementById('left-page-box');
+        const rightPageBox = document.getElementById('right-page-box');
+        const leftPageImg = document.getElementById('left-page-img');
+        const rightPageImg = document.getElementById('right-page-img');
+        const leftSkeleton = document.getElementById('left-skeleton');
+        const rightSkeleton = document.getElementById('right-skeleton');
+        const spineSeam = document.getElementById('spine-seam');
+        const pagesContainer = document.getElementById('pages-container');
+        const loupeLens = document.getElementById('loupe-lens');
+
+        // INITIALIZATION
+        window.onload = () => {
+            renderPages();
+            buildVaultGrid();
+            setupLoupeEvents();
+            setupKeyboardEvents();
+            updateBookmarkBtnState();
+        };
+
+        // URL GENERATOR
+        function getPageUrl(num) {
+            return `${BASE_URL}${num}.png`;
+        }
+
+        // PAGE RENDER ENGINE
+        function renderPages() {
+            // Update Page Indicators
+            document.getElementById('page-slider').value = currentPage;
+            
+            if (isDualSpread) {
+                const rightPageNum = currentPage + 1 <= TOTAL_PAGES ? currentPage + 1 : null;
+                document.getElementById('header-page-indicator').innerText = rightPageNum 
+                    ? `PAGES ${currentPage}-${rightPageNum} OF ${TOTAL_PAGES}`
+                    : `PAGE ${currentPage} OF ${TOTAL_PAGES}`;
+                
+                document.getElementById('left-page-number').innerText = currentPage;
+                if (rightPageNum) {
+                    document.getElementById('right-page-number').innerText = rightPageNum;
+                    rightPageBox.style.display = 'flex';
+                    spineSeam.style.display = 'block';
+                } else {
+                    rightPageBox.style.display = 'none';
+                    spineSeam.style.display = 'none';
+                }
+            } else {
+                document.getElementById('header-page-indicator').innerText = `PAGE ${currentPage} OF ${TOTAL_PAGES}`;
+                document.getElementById('left-page-number').innerText = currentPage;
+                rightPageBox.style.display = 'none';
+                spineSeam.style.display = 'none';
+            }
+
+            // Image Loading & Skeleton State
+            leftSkeleton.style.display = 'block';
+            leftPageImg.classList.add('opacity-0');
+            leftPageImg.src = getPageUrl(currentPage);
+            leftPageImg.onload = () => {
+                leftSkeleton.style.display = 'none';
+                leftPageImg.classList.remove('opacity-0');
+            };
+
+            if (isDualSpread && currentPage + 1 <= TOTAL_PAGES) {
+                rightSkeleton.style.display = 'block';
+                rightPageImg.classList.add('opacity-0');
+                rightPageImg.src = getPageUrl(currentPage + 1);
+                rightPageImg.onload = () => {
+                    rightSkeleton.style.display = 'none';
+                    rightPageImg.classList.remove('opacity-0');
+                };
+            }
+
+            // Update Bookmark Ribbons
+            document.getElementById('left-bookmark-ribbon').style.display = bookmarks.includes(currentPage) ? 'flex' : 'none';
+            if (isDualSpread && currentPage + 1 <= TOTAL_PAGES) {
+                document.getElementById('right-bookmark-ribbon').style.display = bookmarks.includes(currentPage + 1) ? 'flex' : 'none';
+            }
+
+            // Update Curator Notes Content for Current Page
+            updateNotesDisplay();
+            updateBookmarkBtnState();
+        }
+
+        // NAVIGATION LOGIC
+        function nextPage() {
+            const step = isDualSpread ? 2 : 1;
+            if (currentPage + step <= TOTAL_PAGES) {
+                currentPage += step;
+            } else if (isDualSpread && currentPage + 1 === TOTAL_PAGES) {
+                currentPage += 1;
+            }
+            renderPages();
+        }
+
+        function prevPage() {
+            const step = isDualSpread ? 2 : 1;
+            if (currentPage - step >= 1) {
+                currentPage -= step;
+            } else {
+                currentPage = 1;
+            }
+            renderPages();
+        }
+
+        function goToPage(num) {
+            currentPage = parseInt(num);
+            if (isDualSpread && currentPage % 2 === 0 && currentPage > 1) {
+                currentPage -= 1; // Align to left spread
+            }
+            renderPages();
+        }
+
+        function onSliderChange(val) {
+            goToPage(val);
+        }
+
+        // SPREAD MODE TOGGLE
+        function toggleSpreadMode() {
+            isDualSpread = !isDualSpread;
+            document.getElementById('view-mode-text').innerText = isDualSpread ? "SINGLE PAGE FOCUS" : "DUAL SPREAD VIEW";
+            document.getElementById('header-spread-mode').innerText = isDualSpread ? "DUAL SPREAD VIEW" : "SINGLE PAGE FOCUS";
+            renderPages();
+        }
+
+        // ZOOM ENGINE
+        function adjustZoom(delta) {
+            zoomLevel = Math.max(0.6, Math.min(2.5, zoomLevel + delta));
+            applyZoom();
+        }
+
+        function resetZoom() {
+            zoomLevel = 1.0;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            pagesContainer.style.transform = `scale(${zoomLevel})`;
+            document.getElementById('zoom-percentage').innerText = `${Math.round(zoomLevel * 100)}%`;
+        }
+
+        // LOUPE LENS MAGNIFIER ENGINE
+        function toggleLoupe() {
+            loupeActive = !loupeActive;
+            const btn = document.getElementById('loupe-toggle-btn');
+            if (loupeActive) {
+                btn.classList.add('border-champagne', 'text-champagne');
+                document.body.style.cursor = 'crosshair';
+            } else {
+                btn.classList.remove('border-champagne', 'text-champagne');
+                loupeLens.style.display = 'none';
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        function setupLoupeEvents() {
+            const wrapper = document.getElementById('canvas-wrapper');
+
+            wrapper.addEventListener('mousemove', (e) => {
+                if (!loupeActive) return;
+
+                loupeLens.style.display = 'block';
+                loupeLens.style.left = `${e.clientX - 90}px`;
+                loupeLens.style.top = `${e.clientY - 90}px`;
+
+                // Calculate inspection position relative to images
+                const targetImg = e.clientX > window.innerWidth / 2 ? rightPageImg : leftPageImg;
+                const rect = targetImg.getBoundingClientRect();
+
+                if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                    const xRatio = (e.clientX - rect.left) / rect.width;
+                    const yRatio = (e.clientY - rect.top) / rect.height;
+
+                    loupeLens.style.backgroundImage = `url('${targetImg.src}')`;
+                    loupeLens.style.backgroundSize = `${rect.width * 3}px ${rect.height * 3}px`;
+                    loupeLens.style.backgroundPosition = `-${xRatio * rect.width * 3 - 90}px -${yRatio * rect.height * 3 - 90}px`;
+                }
+            });
+
+            wrapper.addEventListener('mouseleave', () => {
+                loupeLens.style.display = 'none';
+            });
+        }
+
+        // BOOKMARKS SYSTEM
+        function toggleCurrentBookmark() {
+            if (bookmarks.includes(currentPage)) {
+                bookmarks = bookmarks.filter(p => p !== currentPage);
+            } else {
+                bookmarks.push(currentPage);
+            }
+            localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
+            renderPages();
+            buildVaultGrid();
+        }
+
+        function updateBookmarkBtnState() {
+            const btn = document.getElementById('bookmark-btn');
+            if (bookmarks.includes(currentPage)) {
+                btn.classList.add('text-champagne', 'border-champagne');
+                btn.querySelector('i').className = 'fa-solid fa-bookmark text-xs';
+            } else {
+                btn.classList.remove('text-champagne', 'border-champagne');
+                btn.querySelector('i').className = 'fa-regular fa-bookmark text-xs';
+            }
+        }
+
+        // CURATOR NOTES SYSTEM
+        function toggleNotesDrawer() {
+            const drawer = document.getElementById('notes-drawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        function updateNotesDisplay() {
+            document.getElementById('notes-page-title').innerText = `PAGE ${currentPage} ANNOTATIONS`;
+            document.getElementById('curator-textarea').value = notes[currentPage] || '';
+            
+            const badge = document.getElementById('notes-badge');
+            if (notes[currentPage] && notes[currentPage].trim() !== '') {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function saveCuratorNote() {
+            const val = document.getElementById('curator-textarea').value;
+            notes[currentPage] = val;
+            localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+            
+            const status = document.getElementById('save-status');
+            status.innerText = "SAVING...";
+            setTimeout(() => {
+                status.innerText = "AUTOSAVED";
+                updateNotesDisplay();
+                buildVaultGrid();
+            }, 500);
+        }
+
+        // THUMBNAILS VAULT DRAWER
+        function toggleVaultDrawer() {
+            const drawer = document.getElementById('vault-drawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        function filterVault(filter) {
+            currentFilter = filter;
+            ['all', 'bookmarked', 'annotated'].forEach(f => {
+                const el = document.getElementById(`filter-${f}`);
+                if (f === filter) {
+                    el.className = 'px-2 py-1 border hairline-gold bg-champagne text-obsidian font-bold';
+                } else {
+                    el.className = 'px-2 py-1 border hairline-white text-stone-400 hover:text-champagne';
+                }
+            });
+            buildVaultGrid();
+        }
+
+        function buildVaultGrid() {
+            const grid = document.getElementById('vault-grid');
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= TOTAL_PAGES; i++) {
+                const isBookmarked = bookmarks.includes(i);
+                const hasNote = notes[i] && notes[i].trim() !== '';
+
+                if (currentFilter === 'bookmarked' && !isBookmarked) continue;
+                if (currentFilter === 'annotated' && !hasNote) continue;
+
+                const card = document.createElement('div');
+                card.className = `relative border ${i === currentPage ? 'border-champagne' : 'hairline-white'} bg-stone-900 p-2 cursor-pointer group hover:border-champagne transition`;
+                card.onclick = () => {
+                    goToPage(i);
+                    toggleVaultDrawer();
+                };
+
+                card.innerHTML = `
+                    <div class="aspect-[3/4] bg-stone-950 overflow-hidden relative mb-2">
+                        <img src="${getPageUrl(i)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                        ${isBookmarked ? '<div class="absolute top-0 right-2 w-3 h-5 bg-champagne"></div>' : ''}
+                    </div>
+                    <div class="flex items-center justify-between text-[8px] font-cinzel text-stone-400">
+                        <span>PAGE ${i}</span>
+                        ${hasNote ? '<i class="fa-solid fa-pen-nib text-champagne"></i>' : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        // LIGHTING ATMOSPHERE SUITE
+        function toggleThemeModal() {
+            const modal = document.getElementById('theme-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function setTheme(theme) {
+            document.body.className = `h-full font-montserrat theme-${theme} select-none overflow-hidden transition-colors duration-500`;
+            toggleThemeModal();
+        }
+
+        // ATMOSPHERIC SOUND GENERATOR (Web Audio Vinyl Crackle / Ambient Hum)
+        function toggleAmbientAudio() {
+            audioActive = !audioActive;
+            const btn = document.getElementById('audio-toggle-btn');
+
+            if (audioActive) {
+                btn.classList.add('border-champagne', 'text-champagne');
+                startAmbientNoise();
+            } else {
+                btn.classList.remove('border-champagne', 'text-champagne');
+                stopAmbientNoise();
+            }
+        }
+
+        function startAmbientNoise() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            const bufferSize = audioCtx.sampleRate * 2;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = noiseBuffer;
+            noiseNode.loop = true;
+
+            // Filter for warm vinyl crackle hum
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 400;
+            filter.Q.value = 3.0;
+
+            gainNode = audioCtx.createGain();
+            gainNode.gain.value = 0.015; // Low atmospheric background level
+
+            noiseNode.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            noiseNode.start();
+        }
+
+        function stopAmbientNoise() {
+            if (noiseNode) {
+                noiseNode.stop();
+                noiseNode.disconnect();
+            }
+        }
+
+        // SLIDESHOW COLLECTOR PRESENTATION MODE
+        function toggleSlideshow() {
+            slideshowActive = !slideshowActive;
+            const btn = document.getElementById('slideshow-btn');
+
+            if (slideshowActive) {
+                btn.classList.add('border-champagne', 'text-champagne');
+                btn.querySelector('i').className = 'fa-solid fa-pause text-xs';
+                slideshowInterval = setInterval(() => {
+                    if (currentPage < TOTAL_PAGES) {
+                        nextPage();
+                    } else {
+                        toggleSlideshow();
+                    }
+                }, 4000);
+            } else {
+                btn.classList.remove('border-champagne', 'text-champagne');
+                btn.querySelector('i').className = 'fa-solid fa-play text-xs';
+                clearInterval(slideshowInterval);
+            }
+        }
+
+        // PRINT & EXPORT MODAL
+        function openExportModal() {
+            document.getElementById('export-page-num').innerText = currentPage;
+            document.getElementById('export-modal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('export-modal').classList.add('hidden');
+        }
+
+        function triggerPrint(mode) {
+            closeExportModal();
+            window.print();
+        }
+
+        // ABOUT MODAL
+        function toggleAboutModal() {
+            document.getElementById('about-modal').classList.toggle('hidden');
+        }
+
+        // FULLSCREEN TOGGLE
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+                document.getElementById('fullscreen-icon').className = 'fa-solid fa-compress text-xs';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    document.getElementById('fullscreen-icon').className = 'fa-solid fa-expand text-xs';
+                }
+            }
+        }
+
+        // KEYBOARD SHORTCUTS
+        function setupKeyboardEvents() {
+            window.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+                
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    nextPage();
+                } else if (e.key === 'ArrowLeft') {
+                    prevPage();
+                } else if (e.key === 'b' || e.key === 'B') {
+                    toggleCurrentBookmark();
+                } else if (e.key === 'l' || e.key === 'L') {
+                    toggleLoupe();
+                } else if (e.key === 'f' || e.key === 'F') {
+                    toggleFullscreen();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
